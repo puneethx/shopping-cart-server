@@ -1,4 +1,4 @@
-package db_store
+package storage
 
 import (
 	"fmt"

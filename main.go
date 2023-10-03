@@ -5,7 +5,7 @@ import (
 	"os"
 	"log"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/puneethx/shopping-cart-server/db_store"
+	"github.com/puneethx/shopping-cart-server/storage"
 	"database/sql"
 	// "github.com/joho/godotenv"
 )
@@ -17,16 +17,28 @@ type Repository struct {
 func status(c *fiber.Ctx) error {
 	return c.SendString("Server is running! Send your request")
 }
+func(r *Repository) CustomerCart(context *fiber.Ctx) error{
 
+	return context.JSON(fiber.Map{"message": "customer cart details"})
+}
 
+func(r *Repository) CustomerPayment(context *fiber.Ctx) error{
 
-func SetUpRoutes(app *fiber.App) {
+	return context.JSON(fiber.Map{"message": "customer payment details"})
+}
+func(r *Repository) MarkShelf(context *fiber.Ctx) error{
+
+	return context.JSON(fiber.Map{"message": "market shelf"})
+}
+
+func(r *Repository) SetUpRoutes(app *fiber.App){
+
 	app.Get("/", status)
 
-	// app.Post("/customer_cart",)
-	// app.Post("/customer_payment",)
-	// app.Post("/mark_shelf",)
-
+	app.Get("/customer_cart", r.CustomerCart)
+	app.Get("/customer_payment", r.CustomerPayment)
+	app.Get("/mark_shelf", r.MarkShelf)
+	
 }
 
 func main() {
@@ -35,13 +47,16 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	config := &db_store.Config{
+	config := &storage.Config{
 		Host: os.Getenv("DB_HOST"),
 		Password: os.Getenv("DB_PASS"),
 		User: os.Getenv("DB_USER"),
 		DBName: os.Getenv("DB_NAME"),
 		SSLMode: os.Getenv("DB_SSLMODE"),
 	}
+
+	db, err := storage.NewConnection(config)
+
 	if err != nil {
 		log.Fatal("could not connect")
 	}
@@ -50,18 +65,17 @@ func main() {
 		DB: db,
 	}
 
-	db, err := db_store.NewConnection(config)
-
 	app := fiber.New()
-	
 	app.Use(cors.New(cors.Config{
         AllowHeaders:     "Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
         AllowOrigins:     "*",
         AllowCredentials: true,
         AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
     }))
+	
+	r.SetUpRoutes(app)
 
-	SetUpRoutes(app)
+
 
 	port := os.Getenv("PORT")
 
