@@ -116,7 +116,7 @@ func(r *Repository) SetUpRoutes(app *fiber.App){
 
 	app.Get("/", status)
 
-	app.Get("/customer_cart", r.CustomerCart)
+	app.Post("/customer_cart", r.CustomerCart)
 	app.Get("/customer_payment", r.CustomerPayment)
 	app.Get("/mark_shelf", r.MarkShelf)
 	app.Get("/get_catelog", r.GetCatelog)
